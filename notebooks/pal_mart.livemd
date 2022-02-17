@@ -1,0 +1,57 @@
+# PalMart
+
+## Setup
+
+```elixir
+alias PalMart.Accounts
+alias PalMart.Visits
+alias PalMart.Transactions
+```
+
+```elixir
+{:ok, user1} =
+  Accounts.register_user(%{
+    "first_name" => "User",
+    "last_name" => "One",
+    "email" => "user.one@example.com"
+  })
+
+{:ok, user2} =
+  Accounts.register_user(%{
+    "first_name" => "User",
+    "last_name" => "Two",
+    "email" => "user.two@example.com"
+  })
+```
+
+## Request a Visit
+
+```elixir
+{:ok, visit1} =
+  Visits.request(%{
+    member_id: user1.id,
+    date: ~D[2022-02-18],
+    minutes: 120,
+    tasks: "Grocery run"
+  })
+
+{:ok, visit1} = Visits.accept(%{id: visit1.id, pal_id: user2.id})
+```
+
+## Insufficient Balance
+
+At this point, the balance of `user1` is `0` and so another visit may not be requested.
+
+```elixir
+Transactions.compute_balance(user1.id)
+```
+
+```elixir
+{:error, :insufficient_balance} =
+  Visits.request(%{
+    member_id: user1.id,
+    date: ~D[2022-02-18],
+    minutes: 60,
+    tasks: "Another grocery run"
+  })
+```
